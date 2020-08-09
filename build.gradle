@@ -52,10 +52,10 @@ task runGatlingGetScript(type: JavaExec) {
     ]
 }
 
-task(renameReportDirGet) {
+task renameReportDir {
     doLast {
         // find the directory
-        def report = {file -> file.isDirectory() && file.getName().startsWith('getusersscenario')}
+        def report = {file -> file.isDirectory() && (file.getName().startsWith('getusersscenario')|| file.getName().startsWith('postuserscenarios'))}
         def reportDirectory = new File("${buildDir}/reports/gatling").listFiles().toList()
                 .findAll(report)
                 .sort()
@@ -65,7 +65,7 @@ task(renameReportDirGet) {
     }
 }
 // it is run after test phase
-test.finalizedBy renameReportDirGet
+test.finalizedBy renameReportDir
 
 task runGatlingPostScript(type: JavaExec) {
     description = 'Run gatling tests'
@@ -78,6 +78,8 @@ task runGatlingPostScript(type: JavaExec) {
             '-rf', "${buildDir}/reports/gatling"
     ]
 }
+runGatlingPostScript.finalizedBy renameReportDir
+runGatlingGetScript.finalizedBy renameReportDir
 
 test.dependsOn runGatlingGetScript
 
