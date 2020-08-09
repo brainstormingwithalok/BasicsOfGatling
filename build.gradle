@@ -61,7 +61,7 @@ task(renameReportDirGet) {
                 .sort()
                 .last()
         // rename to a known directory
-        reportDirectory.renameTo("${buildDir}/reports/gatling/getusersscenario")
+        reportDirectory.renameTo("${buildDir}/reports/gatling/gatlingscenarios")
     }
 }
 // it is run after test phase
