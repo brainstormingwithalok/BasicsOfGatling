@@ -25,5 +25,4 @@ class GetUsersScenario extends Simulation {
   setUp(
     scn.inject(atOnceUsers(3))
   ).protocols(httpProtocol)
-  
 }

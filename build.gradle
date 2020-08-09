@@ -40,12 +40,24 @@ dependencies {
 }
 
 
-task runGatlingScript(type: JavaExec) {
+task runGatlingGetScript(type: JavaExec) {
     description = 'Run gatling tests'
     new File("${buildDir}/reports/gatling").mkdirs()
     classpath = sourceSets.scripts.runtimeClasspath + configurations.gatlingtest
     main = "io.gatling.app.Gatling"
     args = ['-s', 'brainstorming.GetUsersScenario',
+            '-sf', 'gatling/resources',
+            '-df', 'gatling/resources',
+            '-rf', "${buildDir}/reports/gatling"
+    ]
+}
+
+task runGatlingPostScript(type: JavaExec) {
+    description = 'Run gatling tests'
+    new File("${buildDir}/reports/gatling").mkdirs()
+    classpath = sourceSets.scripts.runtimeClasspath + configurations.gatlingtest
+    main = "io.gatling.app.Gatling"
+    args = ['-s', 'brainstorming.PostUserScenarios',
             '-sf', 'gatling/resources',
             '-df', 'gatling/resources',
             '-rf', "${buildDir}/reports/gatling"
