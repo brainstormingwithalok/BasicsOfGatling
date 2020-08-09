@@ -30,12 +30,12 @@ sourceSets {
         }
         compileClasspath += configurations.gatlingtest
         runtimeClasspath += configurations.gatlingtest
-        
+
     }
 }
 
 dependencies {
-	gatlingtest 'org.scala-lang:scala-library:2.12.0'
+    gatlingtest 'org.scala-lang:scala-library:2.12.0'
     gatlingtest 'io.gatling.highcharts:gatling-charts-highcharts:3.0.0'
 }
 
@@ -52,6 +52,21 @@ task runGatlingGetScript(type: JavaExec) {
     ]
 }
 
+task(renameReportDirGet) {
+    doLast {
+        // find the directory
+        def report = {file -> file.isDirectory() && file.getName().startsWith('getusersscenario')}
+        def reportDirectory = new File("${buildDir}/reports/gatling").listFiles().toList()
+                .findAll(report)
+                .sort()
+                .last()
+        // rename to a known directory
+        reportDirectory.renameTo("${buildDir}/reports/gatling/getusersscenario")
+    }
+}
+// it is run after test phase
+test.finalizedBy renameReportDirGet
+
 task runGatlingPostScript(type: JavaExec) {
     description = 'Run gatling tests'
     new File("${buildDir}/reports/gatling").mkdirs()
@@ -64,10 +79,11 @@ task runGatlingPostScript(type: JavaExec) {
     ]
 }
 
+test.dependsOn runGatlingGetScript
 
 task printClasspath {
     doLast {
-    def classpath = sourceSets.scripts.runtimeClasspath + configurations.gatlingtests
+        def classpath = sourceSets.scripts.runtimeClasspath + configurations.gatlingtests
         classpath.each { println it }
     }
 }
