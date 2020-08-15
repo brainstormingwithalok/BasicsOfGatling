@@ -39,6 +39,18 @@ dependencies {
     gatlingtest 'io.gatling.highcharts:gatling-charts-highcharts:3.0.0'
 }
 
+task renameReportDir {
+    doLast {
+        // find the directory
+        def report = {file -> file.isDirectory() && (file.getName().startsWith('executepostgetscenarios'))}
+        def reportDirectory = new File("${buildDir}/reports/gatling").listFiles().toList()
+                .findAll(report)
+                .sort()
+                .last()
+        // rename to a known directory
+        reportDirectory.renameTo("${buildDir}/reports/gatling/gatlingscenarios")
+    }
+}
 
 task runGatlingGetScript(type: JavaExec) {
     description = 'Run gatling tests'
@@ -52,21 +64,6 @@ task runGatlingGetScript(type: JavaExec) {
     ]
 }
 
-task renameReportDir {
-    doLast {
-        // find the directory
-        def report = {file -> file.isDirectory() && (file.getName().startsWith('getusersscenario')|| file.getName().startsWith('postuserscenarios'))}
-        def reportDirectory = new File("${buildDir}/reports/gatling").listFiles().toList()
-                .findAll(report)
-                .sort()
-                .last()
-        // rename to a known directory
-        reportDirectory.renameTo("${buildDir}/reports/gatling/gatlingscenarios")
-    }
-}
-// it is run after test phase
-test.finalizedBy renameReportDir
-
 task runGatlingPostScript(type: JavaExec) {
     description = 'Run gatling tests'
     new File("${buildDir}/reports/gatling").mkdirs()
@@ -78,6 +75,24 @@ task runGatlingPostScript(type: JavaExec) {
             '-rf', "${buildDir}/reports/gatling"
     ]
 }
+
+task runGetPostScript(type: JavaExec) {
+    description = 'Run gatling tests'
+    new File("${buildDir}/reports/gatling").mkdirs()
+    classpath = sourceSets.scripts.runtimeClasspath + configurations.gatlingtest
+    main = "io.gatling.app.Gatling"
+    args = ['-s', 'brainstorming.ExecutePostGetScenarios',
+            '-sf', 'gatling/resources',
+            '-df', 'gatling/resources',
+            '-rf', "${buildDir}/reports/gatling"
+    ]
+}
+
+runGetPostScript.finalizedBy renameReportDir
+
+// it is run after test phase
+test.finalizedBy renameReportDir
+
 runGatlingPostScript.finalizedBy renameReportDir
 runGatlingGetScript.finalizedBy renameReportDir
 
